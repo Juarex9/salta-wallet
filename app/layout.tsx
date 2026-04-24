@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { ThemeProvider } from '@/components/theme-provider'
+import { AuthProvider } from '@/lib/auth/auth-context'
 import './globals.css'
 
 const geist = Geist({
@@ -38,8 +40,17 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="font-sans antialiased bg-background text-foreground">
-        {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            {children}
+            {process.env.NODE_ENV === 'production' && <Analytics />}
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

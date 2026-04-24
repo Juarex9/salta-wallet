@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WalletType {
+  FIAT
+  CRYPTO
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentMethod {
+  FIAT
+  CRYPTO
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  mpAccountId  String?
+  wallets      Wallet[] @relation("UserWallet")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Wallet {
+  id        String     @id @default(cuid())
+  user      User       @relation("UserWallet", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  type      WalletType
+  network   String?
+  address   String
+  balance   Float      @default(0)
+  currency  String
+  updatedAt DateTime   @updatedAt
+  createdAt DateTime   @default(now())
+
+  @@index([userId])
+}
+
+model Transaction {
+  id           String            @id @default(cuid())
+  userId       String
+  fromWalletId String?
+  toWalletId   String?
+  amount       Float
+  currency     String
+  status       TransactionStatus @default(PENDING)
+  method       PaymentMethod
+  hash         String?
+  description  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([userId])
+}
