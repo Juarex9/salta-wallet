@@ -37,7 +37,7 @@ export function BalanceCard() {
         </div>
 
         <div className="mt-2 flex items-center gap-2 text-xs">
-          <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 font-mono text-accent">
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 font-mono text-primary">
             <TrendingUp className="h-3 w-3" />
             +2,14%
           </span>
@@ -50,7 +50,7 @@ export function BalanceCard() {
             label="Mercado Pago"
             code="MP · ARS"
             amount="847.320,14"
-            accent="from-sky-400/80 to-sky-500/40"
+            accent="from-accent/80 to-accent/30"
             tag="fiat"
           />
           <SubBalance

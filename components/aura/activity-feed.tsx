@@ -32,7 +32,7 @@ const items: Activity[] = [
     title: "Swap  BNB → USDT",
     meta: "Today · 08:02 · 0.42 BNB",
     amount: "+$ 318.204,10",
-    amountClass: "text-accent",
+    amountClass: "text-primary",
     rail: "BNB",
     agent: true,
   },
@@ -50,7 +50,7 @@ const items: Activity[] = [
     title: "Salary · Globant S.A.",
     meta: "Apr 22 · direct deposit",
     amount: "+$ 1.120.000,00",
-    amountClass: "text-accent",
+    amountClass: "text-primary",
     rail: "MP",
   },
   {
@@ -64,10 +64,10 @@ const items: Activity[] = [
 ]
 
 const railBadge: Record<Activity["rail"], { label: string; className: string }> = {
-  MP: { label: "MP", className: "bg-sky-500/15 text-sky-300" },
+  MP: { label: "MP", className: "bg-accent/15 text-accent" },
   BNB: { label: "BNB", className: "bg-primary/15 text-primary" },
-  GOV: { label: "GOV", className: "bg-accent/15 text-accent" },
-  AGENT: { label: "AI", className: "bg-foreground/10 text-foreground" },
+  GOV: { label: "GOV", className: "bg-foreground/10 text-foreground" },
+  AGENT: { label: "AI", className: "bg-primary/20 text-primary" },
 }
 
 export function ActivityFeed() {
