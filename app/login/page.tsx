@@ -21,15 +21,15 @@ export default function LoginPage() {
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     // Build Magic Link login URL
-    window.location.href = `/api/auth/login?email=${encodeURIComponent(email)}`
+    window.location.href = `/auth/login?email=${encodeURIComponent(email)}`
   }
 
   const handleGoogleLogin = () => {
-    window.location.href = "/api/auth/login?connection=google-oauth2"
+    window.location.href = "/auth/login?connection=google-oauth2"
   }
 
   const handleAppleLogin = () => {
-    window.location.href = "/api/auth/login?connection=apple"
+    window.location.href = "/auth/login?connection=apple"
   }
 
   return (
@@ -145,7 +145,7 @@ export default function LoginPage() {
         {/* Login link */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <a href="/api/auth/signup" className="text-primary hover:underline">
+          <a href="/auth/login?screen_hint=signup" className="text-primary hover:underline">
             Sign up
           </a>
         </p>
