@@ -6,8 +6,5 @@ export const auth0 = new Auth0Client({
   domain: process.env.AUTH0_DOMAIN,
   clientID: process.env.AUTH0_CLIENT_ID,
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
-  authorizationParameters: {
-    redirect_uri: `${process.env.APP_BASE_URL || 'http://localhost:3000'}/auth/callback`,
-  },
 })
 
