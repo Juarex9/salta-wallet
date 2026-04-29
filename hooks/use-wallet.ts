@@ -1,116 +1,43 @@
-"use client"
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { useState, useEffect, useCallback } from 'react'
 
-import { useState, useEffect, useCallback } from "react"
-import { balanceApi, walletsApi, agentApi } from "@/lib/auth/api-client"
-
-interface Wallet {
+interface Transaction {
   id: string
-  type: string
-  network?: string
-  address: string
-  balance: number
+  amount: number
   currency: string
+  method: string
+  status: string
+  description?: string
+  createdAt: string
 }
 
-interface Balance {
-  total: { ars: number; usd: number }
-  fiat: Wallet[]
-  crypto: Wallet[]
-}
-
-interface Recommendation {
-  method: "FIAT" | "CRYPTO"
-  wallet: Wallet
-  reasoning: string
-  estimatedFee: string
-  estimatedTime: string
-}
-
-export function useBalance() {
-  const [balance, setBalance] = useState<Balance | null>(null)
+export function useTransactions() {
+  const { user, isLoading: userLoading } = useUser()
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchBalance = useCallback(async () => {
+  const fetchTransactions = useCallback(async () => {
+    if (!user) return
+    
     try {
       setLoading(true)
-      const data = await balanceApi.get()
-      setBalance(data)
+      const res = await fetch("/api/transactions")
+      const data = await res.json()
+      setTransactions(data.transactions || [])
       setError(null)
     } catch (err: any) {
       setError(err.message)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user])
 
   useEffect(() => {
-    fetchBalance()
-  }, [fetchBalance])
-
-  return { balance, loading, error, refetch: fetchBalance }
-}
-
-export function useWallets() {
-  const [wallets, setWallets] = useState<Wallet[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchWallets = useCallback(async () => {
-    try {
-      setLoading(true)
-      const data = await walletsApi.getAll()
-      setWallets(data.wallets)
-      setError(null)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
+    if (!userLoading) {
+      fetchTransactions()
     }
-  }, [])
+  }, [user, userLoading, fetchTransactions])
 
-  const addWallet = useCallback(async (wallet: {
-    type: string
-    network?: string
-    address: string
-    currency?: string
-  }) => {
-    const data = await walletsApi.add(wallet)
-    await fetchWallets()
-    return data.wallet
-  }, [fetchWallets])
-
-  useEffect(() => {
-    fetchWallets()
-  }, [fetchWallets])
-
-  return { wallets, loading, error, addWallet, refetch: fetchWallets }
-}
-
-export function useAgent() {
-  const [recommendation, setRecommendation] = useState<Recommendation | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const getRecommendation = useCallback(async (params: {
-    amount: number
-    currency: string
-    category?: string
-    urgency?: string
-  }) => {
-    try {
-      setLoading(true)
-      const data = await agentApi.recommend(params)
-      setRecommendation(data.recommended)
-      setError(null)
-      return data
-    } catch (err: any) {
-      setError(err.message)
-      return null
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  return { recommendation, loading, error, getRecommendation }
+  return { transactions, loading: loading || userLoading, error, refetch: fetchTransactions }
 }

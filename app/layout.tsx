@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
-import { AuthProvider } from '@/lib/auth/auth-context'
+import Auth0Provider from '@/lib/auth/auth0-provider'
 import './globals.css'
 
 const geist = Geist({
@@ -18,7 +18,6 @@ export const metadata: Metadata = {
   title: 'Aura — AI Agent Wallet',
   description:
     'Your agentic wallet. One balance across Mercado Pago and BNB Chain, digital credentials, and an AI agent ready to act.',
-  generator: 'v0.app',
 }
 
 export const viewport: Viewport = {
@@ -46,10 +45,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
+          <Auth0Provider>
             {children}
             {process.env.NODE_ENV === 'production' && <Analytics />}
-          </AuthProvider>
+          </Auth0Provider>
         </ThemeProvider>
       </body>
     </html>

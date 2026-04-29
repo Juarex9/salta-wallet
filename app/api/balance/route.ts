@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getAuthUser } from '@/lib/auth-middleware'
 import { getWalletBalance } from '@/lib/blockchain'
+import { getPrices } from '@/lib/blockchain/prices'
 
 export async function GET(request: NextRequest) {
   const auth = await getAuthUser(request)
@@ -19,6 +20,10 @@ export async function GET(request: NextRequest) {
     const cryptoWallets = wallets.filter(w => w.type === 'CRYPTO')
     const fiatWallets = wallets.filter(w => w.type === 'FIAT')
 
+    // Get unique currencies for price fetch
+    const currencies = [...new Set(cryptoWallets.map(w => w.currency))]
+    const prices = await getPrices(currencies)
+
     // Get live balances from blockchain
     const cryptoBalances = await Promise.all(
       cryptoWallets.map(async w => {
@@ -31,6 +36,8 @@ export async function GET(request: NextRequest) {
         return {
           ...w,
           balance: parseFloat(live.balance),
+          priceArs: prices[w.currency]?.ars || 0,
+          priceUsd: prices[w.currency]?.usd || 0,
         }
       })
     )
@@ -41,6 +48,7 @@ export async function GET(request: NextRequest) {
         ars: 0,
         usd: 0,
       },
+      prices,
       fiat: fiatWallets.map(w => ({
         id: w.id,
         type: w.type,
@@ -56,18 +64,20 @@ export async function GET(request: NextRequest) {
         address: w.address,
         currency: w.currency,
         balance: w.balance,
+        balanceArs: w.balance * w.priceArs,
+        balanceUsd: w.balance * w.priceUsd,
       })),
     }
 
-    // Calculate totals (simplified - no price feed yet)
+    // Calculate totals
     for (const w of fiatWallets) {
       if (w.currency === 'ARS') {
         unifiedBalance.total.ars += w.balance
       }
     }
     for (const w of cryptoBalances) {
-      // TODO: multiply by price to get USD value
-      unifiedBalance.total.usd += w.balance
+      unifiedBalance.total.ars += w.balance * w.priceArs
+      unifiedBalance.total.usd += w.balance * w.priceUsd
     }
 
     return NextResponse.json(unifiedBalance)

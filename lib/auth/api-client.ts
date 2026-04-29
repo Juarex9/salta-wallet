@@ -74,3 +74,8 @@ export const agentApi = {
       body: JSON.stringify(data),
     }),
 }
+
+// Transactions
+export const transactionsApi = {
+  getAll: () => apiFetch<{ transactions: any[] }>("/api/transactions"),
+}

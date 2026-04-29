@@ -7,11 +7,12 @@ import { CredentialCarousel } from "@/components/aura/credential-carousel"
 import { ActivityFeed } from "@/components/aura/activity-feed"
 import { AgentInput } from "@/components/aura/agent-input"
 import { ProtectedRoute } from "@/lib/auth/protected-route"
-import { useBalance, useWallets } from "@/hooks/use-wallet"
+import { useBalance, useWallets, useTransactions } from "@/hooks/use-wallet"
 
 export default function AuraPage() {
   const { balance, loading: balanceLoading, refetch: refetchBalance } = useBalance()
   const { wallets, refetch: refetchWallets } = useWallets()
+  const { transactions, loading: txLoading } = useTransactions()
 
   const handleRefresh = () => {
     refetchBalance()
@@ -47,7 +48,10 @@ export default function AuraPage() {
               loading={balanceLoading}
               onRefresh={handleRefresh}
             />
-            <ActivityFeed />
+            <ActivityFeed 
+              transactions={transactions}
+              loading={txLoading}
+            />
           </div>
         </div>
 
