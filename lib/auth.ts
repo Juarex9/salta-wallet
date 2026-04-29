@@ -1,9 +1,12 @@
 import { SignJWT, jwtVerify } from 'jose'
+import * as bcrypt from 'bcrypt'
 import { db } from './db'
 
 const secretKey = new TextEncoder().encode(
   process.env.JWT_SECRET || 'fallback-secret-change-in-production'
 )
+
+const BCRYPT_ROUNDS = 12
 
 export async function createToken(userId: string, email: string): Promise<string> {
   return new SignJWT({ userId, email })
@@ -23,17 +26,15 @@ export async function verifyToken(token: string): Promise<{ userId: string; emai
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  // simple hash using Web Crypto API
-  const encoder = new TextEncoder()
-  const data = encoder.encode(password)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  return bcrypt.hash(password, BCRYPT_ROUNDS)
 }
 
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  const passwordHash = await hashPassword(password)
-  return passwordHash === hash
+  try {
+    return await bcrypt.compare(password, hash)
+  } catch {
+    return false
+  }
 }
 
 export function getCurrentUserId(): string | null {

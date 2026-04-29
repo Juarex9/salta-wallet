@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { createToken, hashPassword, verifyPassword } from '@/lib/auth'
+import { createToken, hashPassword } from '@/lib/auth'
+import { registerSchema } from '@/lib/schemas'
+import { ZodError } from 'zod'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password } = body
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      )
-    }
+    
+    // Validar con Zod
+    const validatedData = registerSchema.parse(body)
+    const { email, password } = validatedData
 
     // Check if user exists
     const existingUser = await db.user.findUnique({
@@ -21,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User already exists' },
+        { error: 'El usuario ya existe' },
         { status: 409 }
       )
     }
@@ -46,9 +44,16 @@ export async function POST(request: NextRequest) {
       token,
     })
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Validación fallida', details: error.errors },
+        { status: 400 }
+      )
+    }
+    
     console.error('Register error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Error interno del servidor' },
       { status: 500 }
     )
   }

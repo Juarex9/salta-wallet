@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { createToken, verifyPassword } from '@/lib/auth'
+import { loginSchema } from '@/lib/schemas'
+import { ZodError } from 'zod'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password } = body
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      )
-    }
+    
+    // Validar con Zod
+    const validatedData = loginSchema.parse(body)
+    const { email, password } = validatedData
 
     // Find user
     const user = await db.user.findUnique({
@@ -21,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Credenciales inválidas' },
         { status: 401 }
       )
     }
@@ -30,7 +28,7 @@ export async function POST(request: NextRequest) {
     const isValid = await verifyPassword(password, user.passwordHash)
     if (!isValid) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Credenciales inválidas' },
         { status: 401 }
       )
     }
@@ -46,9 +44,16 @@ export async function POST(request: NextRequest) {
       token,
     })
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Validación fallida', details: error.errors },
+        { status: 400 }
+      )
+    }
+    
     console.error('Login error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Error interno del servidor' },
       { status: 500 }
     )
   }
