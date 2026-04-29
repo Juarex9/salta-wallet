@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getSession } from '@auth0/nextjs-auth0'
 import { getPaymentRecommendation } from '@/lib/ai/payment-agent'
-import { validateUser } from '@/lib/auth-unified'
 import { handleApiError, ValidationError } from '@/lib/errors'
 import { paymentRecommendationSchema } from '@/lib/schemas'
 import { createRateLimiter } from '@/lib/rate-limiter'
@@ -9,16 +9,14 @@ const rateLimiter = createRateLimiter({ maxRequests: 30 })
 
 async function handler(request: NextRequest) {
   try {
-    // Validar autenticación
-    const user = await validateUser(request)
-    if (!user) {
+    const session = await getSession()
+    if (!session) {
       return NextResponse.json(
         { error: 'Autenticación requerida' },
         { status: 401 }
       )
     }
 
-    // Validar método
     if (request.method !== 'POST') {
       return NextResponse.json(
         { error: 'Método no permitido' },

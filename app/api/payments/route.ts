@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getSession } from '@auth0/nextjs-auth0'
 import { db } from '@/lib/db'
-import { getAuthUser } from '@/lib/auth-middleware'
 import { createPaymentLink } from '@/lib/mercadopago'
 
 export async function POST(request: NextRequest) {
-  const auth = await getAuthUser(request)
-  if (!auth) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { amount, description } = body
 
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const payment = await createPaymentLink(
       amount,
       description,
-      `wallet-${auth.userId}`
+      `wallet-${session.user.sub}`
     )
 
     if (!payment) {

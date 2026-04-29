@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getSession } from '@auth0/nextjs-auth0'
 import { db } from '@/lib/db'
-import { getAuthUser } from '@/lib/auth-middleware'
 import { getWalletBalance } from '@/lib/blockchain'
 import { getPrices } from '@/lib/blockchain/prices'
 
 export async function GET(request: NextRequest) {
-  const auth = await getAuthUser(request)
-  if (!auth) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     // Get user's wallets from DB
     const wallets = await db.wallet.findMany({
-      where: { userId: auth.userId },
+      where: { userId: session.user.sub },
     })
 
     // Fetch live balances for crypto wallets
