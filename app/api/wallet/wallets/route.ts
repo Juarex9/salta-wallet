@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from '@auth0/nextjs-auth0'
 import { db } from '@/lib/db'
+
+const DEMO_USER_ID = 'demo-user'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession()
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Autenticación requerida' },
-        { status: 401 }
-      )
-    }
-
-    // Obtener todos los wallets del usuario
     const wallets = await db.wallet.findMany({
-      where: { userId: session.user.sub },
+      where: { userId: DEMO_USER_ID },
       select: {
         id: true,
         address: true,

@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from '@auth0/nextjs-auth0'
 import { db } from '@/lib/db'
+
+const DEMO_USER_ID = 'demo-user'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession()
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const wallets = await db.wallet.findMany({
-      where: { userId: session.user.sub },
+      where: { userId: DEMO_USER_ID },
       orderBy: { createdAt: 'desc' },
     })
     return NextResponse.json({ wallets })
@@ -22,11 +18,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession()
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const body = await request.json()
     const { type, network, address, currency } = body
 
@@ -40,7 +31,7 @@ export async function POST(request: NextRequest) {
     // Check if wallet already exists
     const existing = await db.wallet.findFirst({
       where: {
-        userId: session.user.sub,
+        userId: DEMO_USER_ID,
         address: address.toLowerCase(),
       },
     })
@@ -55,7 +46,7 @@ export async function POST(request: NextRequest) {
     // Create wallet
     const wallet = await db.wallet.create({
       data: {
-        userId: session.user.sub,
+        userId: DEMO_USER_ID,
         type: type.toUpperCase(),
         network: network?.toLowerCase() || null,
         address: address.toLowerCase(),

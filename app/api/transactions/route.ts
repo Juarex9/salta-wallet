@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from '@auth0/nextjs-auth0'
 import { db } from '@/lib/db'
+
+const DEMO_USER_ID = 'demo-user'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession()
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Autenticación requerida' },
-        { status: 401 }
-      )
-    }
-
     const transactions = await db.transaction.findMany({
-      where: { userId: session.user.sub },
+      where: { userId: DEMO_USER_ID },
       orderBy: { createdAt: 'desc' },
       take: 50,
     })
@@ -28,21 +20,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession()
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Autenticación requerida' },
-        { status: 401 }
-      )
-    }
-
     const body = await request.json()
     const { fromWalletId, toWalletId, amount, currency, method, description } = body
 
     const transaction = await db.transaction.create({
       data: {
-        userId: session.user.sub,
+        userId: DEMO_USER_ID,
         fromWalletId,
         toWalletId,
         amount,
