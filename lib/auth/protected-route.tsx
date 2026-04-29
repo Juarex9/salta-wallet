@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useUser } from "@auth0/nextjs-auth0/client"
-import { Loader2 } from "lucide-react"
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { Loader2 } from 'lucide-react'
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useUser()
@@ -11,7 +11,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/login")
+      router.push('/login')
     }
   }, [user, isLoading, router])
 
@@ -24,12 +24,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return (
-      <div className="flex min-h-svh items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    )
+    return null
   }
 
   return <>{children}</>
 }
+

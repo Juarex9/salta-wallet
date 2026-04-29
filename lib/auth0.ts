@@ -1,5 +1,14 @@
-import { Auth0Client } from '@auth0/nextjs-auth0/server'
+import { initAuth0 } from '@auth0/nextjs-auth0'
 
-export const auth0 = new Auth0Client({
-  appBaseUrl: process.env.APP_BASE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000',
+export const auth0 = initAuth0({
+  baseUrl: process.env.AUTH0_BASE_URL || 'http://localhost:3000',
+  secret: process.env.AUTH0_SECRET,
+  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+  clientID: process.env.AUTH0_CLIENT_ID,
+  clientSecret: process.env.AUTH0_CLIENT_SECRET,
+  routes: {
+    callback: '/api/auth/callback',
+    postLogoutRedirect: '/'
+  }
 })
+
