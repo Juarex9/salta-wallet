@@ -1,32 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getAuthUser } from '@/lib/auth-middleware'
 import { getMPSBalance } from '@/lib/mercadopago'
 
-export async function GET(request: NextRequest) {
-  const auth = await getAuthUser(request)
-  if (!auth) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+const DEMO_USER_ID = 'demo-user'
 
+export async function GET(request: NextRequest) {
   try {
-    // Get MPC balance
     const mpBalance = await getMPSBalance()
 
-    // Get or create MP wallet in DB
     let mpWallet = await db.wallet.findFirst({
       where: {
-        userId: auth.userId,
+        userId: DEMO_USER_ID,
         type: 'FIAT',
         currency: 'ARS',
       },
     })
 
-    // If no MP wallet, create one
     if (!mpWallet) {
       mpWallet = await db.wallet.create({
         data: {
-          userId: auth.userId,
+          userId: DEMO_USER_ID,
           type: 'FIAT',
           network: null,
           address: 'mercadopago',
@@ -35,7 +28,6 @@ export async function GET(request: NextRequest) {
         },
       })
     } else {
-      // Update balance
       mpWallet = await db.wallet.update({
         where: { id: mpWallet.id },
         data: {

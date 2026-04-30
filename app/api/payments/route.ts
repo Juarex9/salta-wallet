@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getAuthUser } from '@/lib/auth-middleware'
 import { createPaymentLink } from '@/lib/mercadopago'
 
-export async function POST(request: NextRequest) {
-  const auth = await getAuthUser(request)
-  if (!auth) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+const DEMO_USER_ID = 'demo-user'
 
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { amount, description } = body
@@ -20,11 +16,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create payment link
     const payment = await createPaymentLink(
       amount,
       description,
-      `wallet-${auth.userId}`
+      `wallet-${DEMO_USER_ID}`
     )
 
     if (!payment) {

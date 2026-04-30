@@ -1,22 +1,11 @@
 "use client"
 
-import { Bell, LogOut } from "lucide-react"
-import { useAuth } from "@/lib/auth/auth-context"
+import { Bell } from "lucide-react"
 
 export function StatusBar() {
-  const { user, logout } = useAuth()
-
-  const handleLogout = () => {
-    if (confirm("¿cerrar sesión?")) {
-      logout()
-      window.location.href = "/login"
-    }
-  }
-
   return (
     <header className="flex items-center justify-between pt-2">
       <div className="flex items-center gap-2.5">
-        {/* Aura mark */}
         <div className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card">
           <div className="absolute inset-1 rounded-full bg-primary/15" />
           <div className="relative h-2 w-2 rounded-full bg-primary shadow-[0_0_12px_2px] shadow-primary/70 animate-aura-pulse" />
@@ -26,7 +15,7 @@ export function StatusBar() {
             aura · agent
           </span>
           <span className="text-sm font-medium">
-            {user?.email.split('@')[0] || "User"}
+            demo
             <span className="text-muted-foreground">.</span>
           </span>
         </div>
@@ -37,14 +26,6 @@ export function StatusBar() {
           <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_8px] shadow-accent/60" />
           online
         </div>
-        <button
-          type="button"
-          aria-label="Logout"
-          onClick={handleLogout}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground hover:border-red-500/50 hover:text-red-400"
-        >
-          <LogOut className="h-4 w-4" />
-        </button>
         <button
           type="button"
           aria-label="Notifications"
